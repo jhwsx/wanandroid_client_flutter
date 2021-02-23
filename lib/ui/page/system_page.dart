@@ -6,6 +6,7 @@ import 'package:wanandroid_client_flutter/bloc/bloc_provider.dart';
 import 'package:wanandroid_client_flutter/bloc/main_bloc.dart';
 import 'package:wanandroid_client_flutter/data/protocol/models.dart';
 import 'package:wanandroid_client_flutter/ui/widget/refresh_scaffold.dart';
+import 'package:wanandroid_client_flutter/ui/widget/tree_item.dart';
 import 'package:wanandroid_client_flutter/util/utils.dart';
 
 bool isSystemInit = true;
@@ -43,7 +44,7 @@ class SystemPage extends StatelessWidget {
           itemCount: snapshot.data == null ? 0 : snapshot.data.length,
           itemBuilder: (BuildContext context, int index) {
             TreeModel model = snapshot.data[index];
-            return Text(model.name);
+            return TreeItem(model);
           },
         );
       },
