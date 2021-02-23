@@ -4,7 +4,7 @@ import 'package:base_library/base_library.dart';
 import 'package:fluintl/fluintl.dart';
 import 'package:flutter/material.dart';
 import 'package:wanandroid_client_flutter/res/strings.dart';
-import 'package:wanandroid_client_flutter/ui/pages/settings_page.dart';
+import 'package:wanandroid_client_flutter/ui/page/settings_page.dart';
 import 'package:wanandroid_client_flutter/util/navigator_util.dart';
 import 'package:wanandroid_client_flutter/util/utils.dart';
 

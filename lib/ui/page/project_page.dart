@@ -1,15 +1,15 @@
-import 'package:common_utils/common_utils.dart';
+import 'package:fluintl/fluintl.dart';
 import 'package:flutter/material.dart';
+import 'package:wanandroid_client_flutter/res/strings.dart';
 
-class HomePage extends StatelessWidget {
+class ProjectPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    LogUtil.d("HomePage build");
     return Container(
-      color: Colors.grey,
+      color: Colors.yellow,
       alignment: Alignment.center,
       child: Text(
-        '首页',
+        IntlUtil.getString(context, Ids.titleProject),
         style: TextStyle(fontSize: 24.0),
       ),
     );

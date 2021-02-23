@@ -1,4 +1,6 @@
+import 'package:fluintl/fluintl.dart';
 import 'package:flutter/material.dart';
+import 'package:wanandroid_client_flutter/res/strings.dart';
 
 class NavigationPage extends StatelessWidget {
   @override
@@ -7,7 +9,7 @@ class NavigationPage extends StatelessWidget {
       color: Colors.blue,
       alignment: Alignment.center,
       child: Text(
-        '导航',
+        IntlUtil.getString(context, Ids.titleNavigation),
         style: TextStyle(fontSize: 24.0),
       ),
     );

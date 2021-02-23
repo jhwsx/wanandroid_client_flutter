@@ -50,7 +50,7 @@ class _MainPageState extends State<MainPage> {
               children: <Widget>[
                 HomePage(),
                 NavigationPage(),
-                SystemPage(),
+                SystemPage(labelId: Ids.titleSystem),
                 ProjectPage(),
               ],
               controller: _pageController,

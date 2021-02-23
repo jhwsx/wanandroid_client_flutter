@@ -65,7 +65,7 @@ packages:
       name: common_utils
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.3"
+    version: "1.2.4"
   convert:
     dependency: transitive
     description:
