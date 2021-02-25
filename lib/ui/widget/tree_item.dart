@@ -1,6 +1,8 @@
 import 'package:base_library/base_library.dart';
 import 'package:flutter/material.dart';
 import 'package:wanandroid_client_flutter/data/protocol/models.dart';
+import 'package:wanandroid_client_flutter/res/strings.dart';
+import 'package:wanandroid_client_flutter/util/navigator_util.dart';
 
 class TreeItem extends StatelessWidget {
   const TreeItem(this.model, {Key key}) : super(key: key);
@@ -27,7 +29,8 @@ class TreeItem extends StatelessWidget {
     // InkWell 构建了一个可以触摸的矩形区域
     return InkWell(
       onTap: () {
-        print('点击了这个条目：${model.name}');
+        NavigatorUtil.pushTabPage(context,
+            labelId: Ids.titleSystemTree, title: model.name, treeModel: model);
       },
       child: _ChipsTile(
         label: model.name,
@@ -70,7 +73,10 @@ class _ChipsTile extends StatelessWidget {
               ],
             ),
           ),
-          Icon(Icons.arrow_forward_ios, color: Colors.grey,),
+          Icon(
+            Icons.arrow_forward_ios,
+            color: Colors.grey,
+          ),
         ],
       ),
       decoration: BoxDecoration(

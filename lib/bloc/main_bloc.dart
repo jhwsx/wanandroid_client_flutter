@@ -81,10 +81,12 @@ class MainBloc implements BlocBase {
       }
       _treeList.clear();
       _treeList.addAll(list);
+      // 向 BLoC 发送数据
       _treeSink.add(UnmodifiableListView<TreeModel>(_treeList));
+      // 向 BLoC 发送页面状态数据
       eventSink.add(StatusEvent(
           labelId,
-          ObjectUtil.isNotEmpty(list)
+          ObjectUtil.isEmpty(list)
               ? RefreshStatus.noMore
               : RefreshStatus.idle));
     }).catchError((_) {

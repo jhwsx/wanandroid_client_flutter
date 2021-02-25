@@ -5,6 +5,8 @@ class Ids {
   static const String titleProject = 'title_project';
   static const String titleSettings = 'title_settings';
   static const String titleAbout = "title_about";
+
+  static const String titleSystemTree = "title_system_tree";
 }
 
 Map<String, Map<String, Map<String, String>>> localizedValues = {
