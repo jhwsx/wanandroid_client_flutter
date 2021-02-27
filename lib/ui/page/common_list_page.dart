@@ -20,10 +20,36 @@ class CommonListPage extends StatelessWidget {
     LogUtil.e("CommonListPage build()");
     RefreshController controller = RefreshController();
     final CommonListBloc bloc = BlocProvider.of<CommonListBloc>(context);
-    // TODO 这是什么意思啊？
-    bloc.commonListEventStream.listen((event) {
+    bloc.commonListLoadStatusEventStream.listen((event) {
+      switch (event.status) {
+        case LoadStatus.noMore:
+          controller.loadNoData();
+          break;
+        case LoadStatus.failed:
+          controller.loadFailed();
+          break;
+        case LoadStatus.idle:
+          controller.loadComplete();
+          break;
+        default:
+          break;
+      }
+    });
+    bloc.commonListRefreshStatusEventStream.listen((event) {
       if (cid == event.cid) {
-        controller.sendBack(false, event.status);
+        switch (event.status) {
+          case RefreshStatus.completed:
+            controller.refreshCompleted();
+            break;
+          case RefreshStatus.idle:
+            controller.refreshToIdle();
+            break;
+          case RefreshStatus.failed:
+            controller.refreshFailed();
+            break;
+          default:
+            break;
+        }
       }
     });
     return StreamBuilder(
@@ -32,7 +58,7 @@ class CommonListPage extends StatelessWidget {
             (BuildContext context, AsyncSnapshot<List<RepoModel>> snapshot) {
           int loadStatus =
               Utils.getLoadStatus(snapshot.hasError, snapshot.data);
-          if (loadStatus == LoadStatus.loading) {
+          if (loadStatus == LoadState.loading) {
             bloc.onRefresh(labelId: labelId, cid: cid);
           }
           return RefreshScaffold(
@@ -43,7 +69,7 @@ class CommonListPage extends StatelessWidget {
             onRefresh: ({bool isReload}) {
               return bloc.onRefresh(labelId: labelId, cid: cid);
             },
-            onLoadMore: (bool up) {
+            onLoadMore: () {
               return bloc.onLoadMore(labelId: labelId, cid: cid);
             },
             itemCount: snapshot.data == null ? 0 : snapshot.data.length,

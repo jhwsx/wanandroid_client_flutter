@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:base_library/base_library.dart';
+import 'package:flutter/material.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:wanandroid_client_flutter/data/protocol/models.dart';
@@ -22,13 +23,23 @@ class CommonListBloc implements BlocBase {
 
   /// ***** ***** ***** *****  Common List ***** ***** ***** ***** /
   /// ***** ***** ***** *****  Event ***** ***** ***** ***** /
-  BehaviorSubject<StatusEvent> _commonListEvent =
-      BehaviorSubject<StatusEvent>();
+  BehaviorSubject<LoadStatusEvent> _commonListLoadStatusEvent =
+      BehaviorSubject<LoadStatusEvent>();
 
-  Sink<StatusEvent> get _commonListEventSink => _commonListEvent.sink;
+  Sink<LoadStatusEvent> get _commonListLoadStatusEventSink =>
+      _commonListLoadStatusEvent.sink;
 
-  Stream<StatusEvent> get commonListEventStream =>
-      _commonListEvent.stream.asBroadcastStream();
+  Stream<LoadStatusEvent> get commonListLoadStatusEventStream =>
+      _commonListLoadStatusEvent.asBroadcastStream();
+
+  BehaviorSubject<RefreshStatusEvent> _commonListRefreshStatusEvent =
+      BehaviorSubject<RefreshStatusEvent>();
+
+  Sink<RefreshStatusEvent> get _commonListRefreshStatusEventSink =>
+      _commonListRefreshStatusEvent.sink;
+
+  Stream<RefreshStatusEvent> get commonListRefreshStatusEventStream =>
+      _commonListRefreshStatusEvent.asBroadcastStream();
 
   /// ***** ***** ***** *****  Event ***** ***** ***** ***** /
 
@@ -71,13 +82,15 @@ class CommonListBloc implements BlocBase {
   @override
   void dispose() {
     _commonListData.close();
-    _commonListEvent.close();
+    _commonListLoadStatusEvent.close();
+    _commonListRefreshStatusEvent.close();
   }
 
   Future _getArticle(String labelId, int cid, int page) async {
     CommonRequest commonRequest = CommonRequest(cid);
     return _wanRepository
-        .getArticleList(page: page, data: commonRequest.toJson() /*一定要调用 toJson() 啊*/)
+        .getArticleList(
+            page: page, data: commonRequest.toJson() /*一定要调用 toJson() 啊*/)
         .then((list) {
       if (_commonList == null) _commonList = List();
       // 是刷新，清除一下数据列表
@@ -88,14 +101,32 @@ class CommonListBloc implements BlocBase {
       _commonList.addAll(list);
       // 向 BLoC 发送数据
       _commonListSink.add(UnmodifiableListView<RepoModel>(_commonList));
-      // 向 BLoC 发送页面状态数据
-      _commonListEventSink.add(StatusEvent(labelId,
-          ObjectUtil.isEmpty(list) ? RefreshStatus.noMore : RefreshStatus.idle,
-          cid: cid));
-    }).catchError((_) {
+      // 向 BLoC 发送页面状态数据, 区分是刷新还是加载更多
+      if (page == 0) {
+        _commonListRefreshStatusEventSink.add(RefreshStatusEvent(
+            labelId,
+            ObjectUtil.isEmpty(list)
+                ? RefreshStatus.completed
+                : RefreshStatus.idle,
+            cid: cid));
+      } else {
+        _commonListLoadStatusEventSink.add(LoadStatusEvent(labelId,
+            ObjectUtil.isEmpty(list) ? LoadStatus.noMore : LoadStatus.idle,
+            cid: cid));
+      }
+    }).catchError((e) {
+      debugPrint(e);
+      // TODO Unhandled Exception: Bad state: Cannot add new events after calling close
+      // https://stackoverflow.com/questions/55536461/flutter-unhandled-exception-bad-state-cannot-add-new-events-after-calling-clo
       _commonListData.sink.addError('error');
       _currentCommonListPage--;
-      _commonListEventSink.add(StatusEvent(labelId, RefreshStatus.failed));
+      if (page == 0) {
+        _commonListRefreshStatusEventSink
+            .add(RefreshStatusEvent(labelId, RefreshStatus.failed, cid: cid));
+      } else {
+        _commonListLoadStatusEventSink
+            .add(LoadStatusEvent(labelId, LoadStatus.failed, cid: cid));
+      }
     });
   }
 }

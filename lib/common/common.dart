@@ -9,7 +9,7 @@ class Constant {
 }
 
 /// 加载状态类
-class LoadStatus {
+class LoadState {
   static const int fail = -1;
   static const int loading = 0;
   static const int success = 1;

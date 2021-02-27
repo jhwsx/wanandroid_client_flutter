@@ -4,6 +4,7 @@ import 'package:wanandroid_client_flutter/data/protocol/models.dart';
 import 'package:wanandroid_client_flutter/res/strings.dart';
 import 'package:wanandroid_client_flutter/util/navigator_util.dart';
 
+/// 知识体系条目
 class TreeItem extends StatelessWidget {
   const TreeItem(this.model, {Key key}) : super(key: key);
 

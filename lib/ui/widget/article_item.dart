@@ -1,6 +1,7 @@
 import 'package:base_library/base_library.dart';
 import 'package:flutter/material.dart';
 import 'package:wanandroid_client_flutter/data/protocol/models.dart';
+import 'package:wanandroid_client_flutter/util/navigator_util.dart';
 
 class ArticleItem extends StatelessWidget {
   const ArticleItem(this.model, {Key key, this.isHome}) : super(key: key);
@@ -11,7 +12,7 @@ class ArticleItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        print("点击了：${model.title}");
+        NavigatorUtil.pushWeb(context, model.title, model.link);
       },
       child: Container(
         padding: EdgeInsets.all(8.0),

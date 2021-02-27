@@ -22,12 +22,15 @@ class MainBloc implements BlocBase {
   /// ***** ***** ***** *****  System ***** ***** ***** ***** /
 
   /// ***** ***** ***** *****  Event ***** ***** ***** ***** /
-  BehaviorSubject<StatusEvent> _event = BehaviorSubject<StatusEvent>();
+  BehaviorSubject<RefreshStatusEvent> _refreshStatusEvent =
+      BehaviorSubject<RefreshStatusEvent>();
 
-  Sink<StatusEvent> get eventSink => _event.sink;
+  Sink<RefreshStatusEvent> get _refreshStatusEventSink =>
+      _refreshStatusEvent.sink;
 
   // asBroadcastStream 转换为多订阅流
-  Stream<StatusEvent> get eventStream => _event.stream.asBroadcastStream();
+  Stream<RefreshStatusEvent> get refreshStatusEventStream =>
+      _refreshStatusEvent.stream.asBroadcastStream();
 
   /// ***** ***** ***** *****  Event ***** ***** ***** ***** /
   WanRepository _wanRepository = WanRepository();
@@ -35,6 +38,7 @@ class MainBloc implements BlocBase {
   @override
   void dispose() {
     _tree.close();
+    _refreshStatusEvent.close();
   }
 
   @override
@@ -84,14 +88,15 @@ class MainBloc implements BlocBase {
       // 向 BLoC 发送数据
       _treeSink.add(UnmodifiableListView<TreeModel>(_treeList));
       // 向 BLoC 发送页面状态数据
-      eventSink.add(StatusEvent(
+      _refreshStatusEventSink.add(RefreshStatusEvent(
           labelId,
           ObjectUtil.isEmpty(list)
-              ? RefreshStatus.noMore
+              ? RefreshStatus.completed
               : RefreshStatus.idle));
     }).catchError((_) {
       _tree.sink.addError('error');
-      eventSink.add(StatusEvent(labelId, RefreshStatus.failed));
+      _refreshStatusEventSink
+          .add(RefreshStatusEvent(labelId, RefreshStatus.failed));
     });
   }
 }

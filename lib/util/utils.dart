@@ -8,14 +8,14 @@ class Utils {
   /// 获取加载状态
   static int getLoadStatus(bool hasError, List data) {
     if (hasError) {
-      return LoadStatus.fail;
+      return LoadState.fail;
     }
     if (data == null) {
-      return LoadStatus.loading;
+      return LoadState.loading;
     } else if (data.isEmpty) {
-      return LoadStatus.empty;
+      return LoadState.empty;
     } else {
-      return LoadStatus.success;
+      return LoadState.success;
     }
   }
 }

@@ -11,7 +11,7 @@ class StatusViews extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     switch (status) {
-      case LoadStatus.fail:
+      case LoadState.fail:
         return Container(
           // 为什么设置 width 为这样呢？为了使 Column 宽度上占用足够的空间
           width: double.infinity,
@@ -41,14 +41,13 @@ class StatusViews extends StatelessWidget {
             ),
           ),
         );
-      // break; // todo 这个还要吗？
-      case LoadStatus.loading:
+      case LoadState.loading:
         return Container(
           alignment: Alignment.center,
           color: Colours.gray_f0,
           child: ProgressView(),
         );
-      case LoadStatus.empty:
+      case LoadState.empty:
         return Container(
           width: double.infinity,
           color: Colors.white,
@@ -64,12 +63,13 @@ class StatusViews extends StatelessWidget {
             ],
           ),
         );
-        default:
-          return Container();
+      default:
+        return Container();
     }
   }
 }
 
+/// 指定尺寸的进度圈
 class ProgressView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

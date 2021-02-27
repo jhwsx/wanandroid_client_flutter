@@ -1,11 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import 'widgets.dart';
 
-typedef OnLoadMore = void Function(bool up);
+typedef OnLoadMore = void Function();
 typedef OnRefreshCallback = Future<void> Function({bool isReload});
 
+/// 带刷新，上拉加载，状态页面的脚手架
 class RefreshScaffold extends StatefulWidget {
   const RefreshScaffold(
       {Key key,
@@ -48,20 +50,39 @@ class _RefreshScaffoldState extends State<RefreshScaffold>
     return Scaffold(
       body: Stack(
         children: <Widget>[
-          RefreshIndicator(
-            child: SmartRefresher(
-                controller: widget.controller,
-                enablePullDown: false,
-                enablePullUp: widget.enablePullUp,
-                enableOverScroll: false,
-                onRefresh: widget.onLoadMore,
-                child: widget.child ??
-                    ListView.builder(
-                      itemBuilder: widget.itemBuilder,
-                      itemCount: widget.itemCount,
-                    )),
-            onRefresh: widget.onRefresh,
-          ),
+          SmartRefresher(
+              enablePullDown: true,
+              enablePullUp: widget.enablePullUp,
+              controller: widget.controller,
+              onRefresh: widget.onRefresh,
+              onLoading: widget.onLoadMore,
+              header: MaterialClassicHeader(),
+              footer: CustomFooter(
+                  builder: (BuildContext context, LoadStatus mode) {
+                Widget body;
+                if (mode == LoadStatus.idle) {
+                  body = Text("pull up load");
+                } else if (mode == LoadStatus.loading) {
+                  body = CupertinoActivityIndicator();
+                } else if (mode == LoadStatus.failed) {
+                  body = Text("Load Failed!Click retry!");
+                } else if (mode == LoadStatus.canLoading) {
+                  body = Text("release to load more");
+                } else {
+                  body = Text("No more Data");
+                }
+                return Container(
+                  height: 55.0,
+                  child: Center(
+                    child: body,
+                  ),
+                );
+              }),
+              child: widget.child ??
+                  ListView.builder(
+                    itemBuilder: widget.itemBuilder,
+                    itemCount: widget.itemCount,
+                  )),
           // 加载状态的布局
           StatusViews(
             widget.loadStatus,

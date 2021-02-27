@@ -19,8 +19,23 @@ class SystemPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     LogUtil.e("SystemPage build()");
-    RefreshController _controller = RefreshController();
+    RefreshController controller = RefreshController();
     final MainBloc bloc = BlocProvider.of<MainBloc>(context);
+    bloc.refreshStatusEventStream.listen((event) {
+      switch (event.status) {
+        case RefreshStatus.failed:
+          controller.refreshFailed();
+          break;
+        case RefreshStatus.completed:
+          controller.refreshCompleted();
+          break;
+        case RefreshStatus.idle:
+          controller.refreshToIdle();
+          break;
+        default:
+          break;
+      }
+    });
 
     if (isSystemInit) {
       LogUtil.d("SystemPage init");
@@ -35,12 +50,12 @@ class SystemPage extends StatelessWidget {
         return RefreshScaffold(
           labelId: labelId,
           loadStatus: Utils.getLoadStatus(snapshot.hasError, snapshot.data),
-          controller: _controller,
+          controller: controller,
           enablePullUp: false,
           onRefresh: ({bool isReload}) {
             return bloc.onRefresh(labelId: labelId, isReload: isReload);
           },
-          onLoadMore: (bool up) {},
+          onLoadMore: () {},
           itemCount: snapshot.data == null ? 0 : snapshot.data.length,
           itemBuilder: (BuildContext context, int index) {
             TreeModel model = snapshot.data[index];
