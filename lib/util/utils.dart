@@ -1,8 +1,8 @@
 import 'package:wanandroid_client_flutter/common/common.dart';
 
 class Utils {
-  static String getImagePath(String name, {String format = '.png'}) {
-    return "assets/images/$name$format";
+  static String getImagePath(String name, {String format = 'png'}) {
+    return "assets/images/$name.$format";
   }
 
   /// 获取加载状态

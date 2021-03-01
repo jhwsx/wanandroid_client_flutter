@@ -1,6 +1,7 @@
 import 'package:base_library/base_library.dart';
 import 'package:flutter/material.dart';
 import 'package:wanandroid_client_flutter/common/common.dart';
+import 'package:wanandroid_client_flutter/util/utils.dart';
 
 class StatusViews extends StatelessWidget {
   const StatusViews(this.status, {Key key, this.onTap}) : super(key: key);
@@ -27,7 +28,7 @@ class StatusViews extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Image.asset(
-                    'ic_network_error',
+                    Utils.getImagePath('ic_network_error'),
                     package: BaseConstant.packageBase,
                     width: 100,
                     height: 100,
