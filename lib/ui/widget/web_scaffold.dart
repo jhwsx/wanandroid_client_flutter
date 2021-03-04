@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wanandroid_client_flutter/common/common.dart';
-import 'package:wanandroid_client_flutter/util/navigator_util.dart';
 import 'package:webview_flutter/platform_interface.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -33,8 +32,11 @@ class WebScaffold extends StatefulWidget {
   _WebScaffoldState createState() => _WebScaffoldState();
 }
 
-class _WebScaffoldState extends State<WebScaffold> {
+class _WebScaffoldState extends State<WebScaffold>
+    with SingleTickerProviderStateMixin {
   WebViewController _webViewController;
+  AnimationController _animationController;
+  Animation<double> _animation;
   int _loadState = LoadState.loading;
   ValueNotifier<bool> _canGoForwardNotifier = ValueNotifier(false);
   ValueNotifier<bool> _canGoBackNotifier = ValueNotifier(false);
@@ -42,6 +44,8 @@ class _WebScaffoldState extends State<WebScaffold> {
   bool _isGoBack = false;
   bool _isGoForward = false;
   bool _isNavigate = false;
+  bool _isOnWebResourceError = false;
+  String _title;
 
   void _updateLoadState(int value) {
     setState(() {
@@ -49,11 +53,40 @@ class _WebScaffoldState extends State<WebScaffold> {
     });
   }
 
+  void _updateTitle(String title) {
+    setState(() {
+      _title = title;
+    });
+  }
+
+  @override
+  void initState() {
+    _title = widget.title;
+    _animationController =
+        AnimationController(duration: Duration(milliseconds: 500), vsync: this);
+    _animationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _animationController.repeat();
+      } else if (status == AnimationStatus.dismissed) {
+        _animationController.forward();
+      }
+    });
+    _animation =
+        CurvedAnimation(parent: _animationController, curve: Curves.linear);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(_title ?? ''),
         centerTitle: true,
         actions: <Widget>[
           IconButton(
@@ -99,19 +132,28 @@ class _WebScaffoldState extends State<WebScaffold> {
                   },
                   onPageFinished: (String url) {
                     debugPrint('加载完成：$url');
-                    _updateLoadState(LoadState.success);
+                    if (_isOnWebResourceError && _doNotUseLoadState()) {
+                      _updateLoadState(LoadState.fail);
+                    } else {
+                      _updateLoadState(LoadState.success);
+                    }
+                    _isOnWebResourceError = false;
                     _refreshGoBackAndGoForward();
+                    _webViewController
+                        ?.getTitle()
+                        ?.then((value) => _updateTitle(value));
+                    _animationController.stop();
                   },
                   onPageStarted: (String url) {
                     debugPrint('加载开始：$url');
-                    if (!_doNotShowLoading()) {
+                    if (!_doNotUseLoadState()) {
                       _updateLoadState(LoadState.loading);
                     }
                     _resetFlags();
                   },
                   onWebResourceError: (WebResourceError error) {
                     debugPrint('加载出错：$error');
-                    _updateLoadState(LoadState.fail);
+                    _isOnWebResourceError = true;
                   },
                 ),
               ),
@@ -154,11 +196,22 @@ class _WebScaffoldState extends State<WebScaffold> {
                                   },
                           );
                         }),
-                    IconButton(
-                      icon: Icon(Icons.sync_rounded),
-                      onPressed: () {
-                        _isReload = true;
-                        _webViewController?.reload();
+                    // 旋转动画参考：https://kinsomyjs.github.io/2019/01/08/Flutter%E4%BB%BF%E7%BD%91%E6%98%93%E4%BA%91%E9%9F%B3%E4%B9%90-%E4%B8%80/
+                    AnimatedBuilder(
+                      animation: _animation,
+                      child: IconButton(
+                        icon: Icon(Icons.refresh),
+                        onPressed: () {
+                          _isReload = true;
+                          _animationController.forward();
+                          _webViewController?.reload();
+                        },
+                      ),
+                      builder: (BuildContext context, Widget child) {
+                        return RotationTransition(
+                          turns: _animation,
+                          child: child,
+                        );
                       },
                     ),
                     IconButton(
@@ -191,7 +244,7 @@ class _WebScaffoldState extends State<WebScaffold> {
         ?.then((value) => _canGoForwardNotifier.value = value);
   }
 
-  bool _doNotShowLoading() {
+  bool _doNotUseLoadState() {
     return _isReload | _isGoForward | _isGoBack | _isNavigate;
   }
 
