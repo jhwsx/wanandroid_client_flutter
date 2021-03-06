@@ -98,7 +98,8 @@ class _WebScaffoldState extends State<WebScaffold>
           IconButton(
             icon: Icon(Icons.share),
             onPressed: () async {
-              await Share.share("${widget.title} ${widget.url}");
+              String currentUrl = await _webViewController?.currentUrl();
+              await Share.share("${_title ?? widget.title} ${ currentUrl ?? widget.url}");
             },
           ),
         ],
