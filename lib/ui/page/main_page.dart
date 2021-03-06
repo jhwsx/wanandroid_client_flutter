@@ -48,9 +48,9 @@ class _MainPageState extends State<MainPage> {
           Expanded(
             child: PageView(
               children: <Widget>[
-                HomePage(),
+                HomePage(labelId: Ids.titleHome),
                 NavigationPage(),
-                SystemPage(labelId: Ids.titleSystem),
+                const SystemPage(labelId: Ids.titleSystem),
                 ProjectPage(),
               ],
               controller: _pageController,

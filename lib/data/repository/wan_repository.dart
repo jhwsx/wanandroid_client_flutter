@@ -24,7 +24,7 @@ class WanRepository {
 
   /// 获取首页文章列表，不使用 data
   /// 获取知识体系下的文章列表，需要使用 data
-  Future<List<RepoModel>> getArticleList({int page, data}) async {
+  Future<List<dynamic>> getArticleList({int page, data}) async {
     BaseResp<Map<String, dynamic>> baseResp = await DioUtil().request(
         Method.get,
         WanAndroidApi.getPath(path: WanAndroidApi.ARTICLE_LIST, page: page),
@@ -36,6 +36,23 @@ class WanRepository {
     if (baseResp.data != null) {
       CommonData commonData = CommonData.fromJson(baseResp.data);
       return commonData.datas.map((e) => RepoModel.fromJson(e)).toList();
+    } else {
+      return null;
+    }
+  }
+
+  // 获取首页 banner
+  // https://www.wanandroid.com/banner/json
+  Future<List<dynamic>> getBannerList() async {
+    BaseResp<List> baseResp = await DioUtil()
+        .request(Method.get, WanAndroidApi.getPath(path: WanAndroidApi.BANNER));
+    if (baseResp.code != Constant.status_success) {
+      return Future.error(baseResp.msg);
+    }
+    if (baseResp.data != null) {
+      return baseResp.data.map((value) {
+        return BannerModel.fromJson(value);
+      }).toList();
     } else {
       return null;
     }

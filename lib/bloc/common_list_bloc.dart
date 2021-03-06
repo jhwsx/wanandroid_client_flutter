@@ -98,7 +98,9 @@ class CommonListBloc implements BlocBase {
         _commonList.clear();
       }
       // 把请求到的数据添加到数据列表中
-      _commonList.addAll(list);
+      if (!ObjectUtil.isEmpty(list)) {
+        _commonList.addAll(list as List<RepoModel>);
+      }
       // 向 BLoC 发送数据
       _commonListSink.add(UnmodifiableListView<RepoModel>(_commonList));
       // 向 BLoC 发送页面状态数据, 区分是刷新还是加载更多
@@ -115,12 +117,12 @@ class CommonListBloc implements BlocBase {
             cid: cid));
       }
     }).catchError((e) {
-      debugPrint(e);
+      debugPrint('CommonListBloc: $e');
       // TODO Unhandled Exception: Bad state: Cannot add new events after calling close
       // https://stackoverflow.com/questions/55536461/flutter-unhandled-exception-bad-state-cannot-add-new-events-after-calling-clo
-      _commonListData.sink.addError('error');
       _currentCommonListPage--;
       if (page == 0) {
+        _commonListData.sink.addError('error');
         _commonListRefreshStatusEventSink
             .add(RefreshStatusEvent(labelId, RefreshStatus.failed, cid: cid));
       } else {

@@ -141,3 +141,45 @@ class TreeModel {
     return sb.toString();
   }
 }
+
+class BannerModel {
+  // 描述
+  String desc;
+
+  // id
+  int id;
+
+  // 图片资源链接
+  String imagePath;
+  String title;
+
+  // 跳转链接
+  String url;
+
+  BannerModel.fromJson(Map<String, dynamic> json) {
+    desc = json['desc'];
+    id = json['id'];
+    imagePath = json['imagePath'];
+    title = json['title'];
+    url = json['url'];
+  }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'desc': desc,
+        'id': id,
+        'imagePath': imagePath,
+        'title': title,
+        'url': url,
+      };
+
+  @override
+  String toString() {
+    StringBuffer sb = StringBuffer('{')
+      ..write("\"desc\":\"$desc\"")
+      ..write(",\"id\":$id")
+      ..write("\"imagePath\":\"$imagePath\"")
+      ..write("\"title\":\"$title\"")
+      ..write("\"url\":\"$url\"");
+    return sb.toString();
+  }
+}
